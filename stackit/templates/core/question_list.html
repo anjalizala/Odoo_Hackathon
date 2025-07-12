@@ -1,5 +1,91 @@
-{% for question in questions %}
-<h2><a href="{% url 'question_detail' question.pk %}">{{ question.title }}</a></h2>
-<p>Asked by {{ question.author.username }} on {{ question.created_at }}</p>
-{% endfor %}
-<a href="{% url 'ask_question' %}">Ask a Question</a>
+{% extends 'core/header.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800 sm:text-3xl">All Questions</h2>
+    <!-- Filter Links -->
+    <div class="mb-4 flex flex-wrap gap-4 sm:gap-6">
+        <a href="?sort=newest_answered{{ search_query|length|add:'?'|add:search_query }}" class="text-blue-600 hover:underline text-sm sm:text-base">Newest Answered</a>
+        <a href="?sort=more_list{{ search_query|length|add:'?'|add:search_query }}" class="text-blue-600 hover:underline text-sm sm:text-base">More List</a>
+    </div>
+    <!-- Search Bar -->
+    <div class="mb-4">
+        <form method="get" class="flex flex-col sm:flex-row gap-2">
+            <input type="text" name="q" id="id_search" value="{{ search_query }}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base" placeholder="Search questions...">
+            <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm sm:text-base">Search</button>
+        </form>
+    </div>
+    {% if questions %}
+        {% for question in questions %}
+            {% if user.is_authenticated and question.author != user %}
+                <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div class="w-full sm:w-3/4">
+                        <h3 class="text-lg font-semibold sm:text-xl">
+                            <a href="{% url 'core:question_detail' question.pk %}" class="text-blue-600 hover:underline">{{ question.title }}</a>
+                        </h3>
+                        <p class="text-sm sm:text-base text-gray-500 mt-2">Asked by {{ question.author.username }} on {{ question.created_at|date:"M d, Y" }}</p>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            {% for tag in question.tags.all %}
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm px-2 py-1 rounded mr-1">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/4 mt-4 sm:mt-0 text-right">
+                        <p class="text-sm sm:text-base text-gray-500">Answers: {{ question.answers.count }}</p>
+                        {% if user.is_authenticated %}
+                            {% if question.user_has_answered %}
+                                <span class="mt-2 inline-block text-green-600 text-sm sm:text-base">Answered</span>
+                            {% else %}
+                                <a href="{% url 'core:question_detail' question.pk %}" class="mt-2 inline-block bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm sm:text-base w-full sm:w-auto">Answer</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif not user.is_authenticated %}
+                <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div class="w-full sm:w-3/4">
+                        <h3 class="text-lg font-semibold sm:text-xl">
+                            <a href="{% url 'core:question_detail' question.pk %}" class="text-blue-600 hover:underline">{{ question.title }}</a>
+                        </h3>
+                        <p class="text-sm sm:text-base text-gray-500 mt-2">Asked by {{ question.author.username }} on {{ question.created_at|date:"M d, Y" }}</p>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            {% for tag in question.tags.all %}
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm px-2 py-1 rounded mr-1">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/4 mt-4 sm:mt-0 text-right">
+                        <p class="text-sm sm:text-base text-gray-500">Answers: {{ question.answers.count }}</p>
+                        <a href="{% url 'core:question_detail' question.pk %}" class="mt-2 inline-block bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm sm:text-base w-full sm:w-auto">Answer</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!-- Pagination -->
+        {% if questions.has_other_pages %}
+            <div class="flex justify-center mt-6">
+                <nav aria-label="Page navigation">
+                    <ul class="flex space-x-2">
+                        {% if questions.has_previous %}
+                            <li>
+                                <a href="?page={{ questions.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm sm:text-base">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for num in questions.paginator.page_range %}
+                            <li>
+                                <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3 py-2 {% if questions.number == num %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %} rounded-md text-sm sm:text-base">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if questions.has_next %}
+                            <li>
+                                <a href="?page={{ questions.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm sm:text-base">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-gray-600 text-base sm:text-lg">No questions available.</p>
+    {% endif %}
+</div>
+{% endblock %}
