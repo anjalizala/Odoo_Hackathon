@@ -117,16 +117,9 @@ def question_detail(request, pk):
 
 @login_required
 def my_questions(request):
-    questions = request.user.questions.all().annotate(
-        upvotes=Coalesce(Count('questionvote', filter=Q(questionvote__vote_type=1)), 0),
-        downvotes=Coalesce(Count('questionvote', filter=Q(questionvote__vote_type=-1)), 0),
-        net_votes=Coalesce(Count('questionvote', filter=Q(questionvote__vote_type=1)), 0) - Coalesce(Count('questionvote', filter=Q(questionvote__vote_type=-1)), 0)
-    ).order_by('-created_at')
+    questions = request.user.questions.all().order_by('-created_at')
     notifications = Notification.objects.filter(user=request.user, read=False).count()
-    return render(request, 'core/my_questions.html', {
-        'questions': questions,
-        'unread_notifications': notifications,
-    })
+    return render(request, 'core/my_questions.html', {'questions': questions, 'unread_notifications': notifications})
 
 @login_required
 def post_answer(request, pk):
