@@ -46,4 +46,3 @@ class Notification(models.Model):
     message = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=timezone.now)
     read = models.BooleanField(default=False)
-
