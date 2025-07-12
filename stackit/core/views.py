@@ -123,4 +123,4 @@ def accept_answer(request, answer_id):
             user=answer.author,
             message=f"Your answer to '{question.title}' has been accepted."
         )
-    return redirect('question_detail', pk=question.pk)
+    return redirect('question_detail',pk=question.pk)
