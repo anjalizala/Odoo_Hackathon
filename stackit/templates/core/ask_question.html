@@ -1,0 +1,31 @@
+{% extends 'core/header.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Ask a Question</h2>
+    <form method="post" class="bg-white p-6 rounded-lg shadow-md" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-4">
+            <label for="id_title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" name="title" id="id_title" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+            {{ form.title.errors }}
+        </div>
+        <div class="mb-4">
+            <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
+            {% if form.description %}
+                {{ form.description|safe }}
+            {% else %}
+                <textarea name="description" id="id_description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows="10"></textarea>
+                <p class="text-red-500">TinyMCE editor not loaded. Check configuration.</p>
+            {% endif %}
+            {{ form.description.errors }}
+        </div>
+        <div class="mb-4">
+            <label for="id_tags" class="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+            <input type="text" name="tags" id="id_tags" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+            {{ form.tags.errors }}
+        </div>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200">Submit Question</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'core/header.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">My Questions</h2>
+    {% if questions %}
+        {% for question in questions %}
+            <div class="bg-white p-6 rounded-lg shadow-md mb-4 flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-semibold">
+                        <a href="{% url 'core:question_detail' question.pk %}" class="text-blue-600 hover:underline">{{ question.title }}</a>
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-2">Asked on {{ question.created_at|date:"M d, Y" }}</p>
+                    <div class="mt-2">
+                        {% for tag in question.tags.all %}
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Answers: {{ question.answers.count }}</p>
+                    <a href="{% url 'core:question_detail' question.pk %}" class="mt-2 inline-block bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200">View Answers</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-gray-600">You have not asked any questions yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
