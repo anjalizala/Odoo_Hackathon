@@ -1,0 +1,5 @@
+{% for question in questions %}
+<h2><a href="{% url 'question_detail' question.pk %}">{{ question.title }}</a></h2>
+<p>Asked by {{ question.author.username }} on {{ question.created_at }}</p>
+{% endfor %}
+<a href="{% url 'ask_question' %}">Ask a Question</a>
