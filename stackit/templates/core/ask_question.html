@@ -1,0 +1,84 @@
+{% extends 'core/header.html' %}
+
+{% block content %}
+<style>
+    .rich-text ul,
+    .rich-text ol {
+        margin: 1em 0;
+        padding-left: 2em;
+        list-style-position: outside;
+    }
+    
+    .rich-text li {
+        margin-bottom: 0.5em;
+    }
+    
+    .rich-text img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 1em 0;
+    }
+    </style>
+<div class="max-w-7xl mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Ask a Question</h2>
+    
+    <form method="post" class="bg-white p-6 rounded-lg shadow-md" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Title -->
+        <div class="mb-4">
+            <label for="id_title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" name="title" id="id_title" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+            {{ form.title.errors }}
+        </div>
+
+        <!-- Description with CKEditor -->
+        <div class="mb-4">
+            <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea name="description" id="id_description" rows="10" class="mt-1 block w-full border border-gray-300 rounded-md"></textarea>
+            {{ form.description.errors }}
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-4">
+            <label for="id_tags" class="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+            <input type="text" name="tags" id="id_tags" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+            {{ form.tags.errors }}
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200">
+            Submit Question
+        </button>
+    </form>
+</div>
+
+<!-- CKEditor 5 Full Build -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+ClassicEditor
+    .create(document.querySelector('#id_description'), {
+        toolbar: [
+            'bold', 'italic', 'strikethrough', '|',
+            'numberedList', 'bulletedList', '|',
+            'link', 'insertImage', 'emoji', '|',
+            'alignment:left', 'alignment:center', 'alignment:right', '|',
+            'undo', 'redo'
+        ],
+        alignment: {
+            options: ['left', 'center', 'right']
+        },
+        simpleUpload: {
+            uploadUrl: '/upload-image/',  
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+</script>
+{% endblock %}
